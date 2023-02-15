@@ -1,0 +1,65 @@
+﻿<button class="btn btn-primary" onclick="getCallGreetSync()">CallGreet(GET同步)</button>
+<button class="btn btn-primary" onclick="getCallGreetAsync()">CallGreet(GET非同步)</button>
+<button class="btn btn-primary" onclick="postCallGreetAsync()">CallGreet(POST非同步)</button>
+<img id="progress" src="~/images/hourglass.gif" style="display:none" asp-append-version="true" />
+<div id="result"></div>
+
+@section Scripts
+    {
+    <script>
+        function getCallGreetSync() {
+            var xmlHttp = new XMLHttpRequest();
+            if (xmlHttp != null) {
+                var p = encodeURI("Name=陳小明");
+                xmlHttp.open("GET", "https://localhost:7134/Ajax/Greet?" + p, false);
+                document.getElementById("progress").style.display = "inline";
+                xmlHttp.send();
+                document.getElementById("result").innerText = decodeURI(xmlHttp.responseText);
+                document.getElementById("progress").style.display = "none";
+            }
+            else {
+                alert("瀏覽不支援XMLHttpRequest")
+            }
+        }
+        function getCallGreetAsync() {
+            var xmlHttp = new XMLHttpRequest();
+            if (xmlHttp != null) {
+                var p = encodeURI("Name=李小明");
+                xmlHttp.open("GET", "https://localhost:7134/Ajax/Greet?" + p, true);
+                xmlHttp.onreadystatechange = function () {
+                    if (xmlHttp.readyState == 4) {
+                        if (xmlHttp.status == 200) {
+                            document.getElementById("result").innerText = decodeURI(xmlHttp.responseText);
+                            document.getElementById("progress").style.display = "none";
+                        }
+                    }
+                };
+                document.getElementById("progress").style.display = "inline";
+                xmlHttp.send();
+            }
+            else {
+                alert("瀏覽不支援XMLHttpRequest")
+            }
+        }
+        function postCallGreetAsync() {
+            var xmlHttp = new XMLHttpRequest();
+            if (xmlHttp != null) {
+                xmlHttp.open("POST", "https://localhost:7134/Ajax/Greet", true);
+                xmlHttp.onreadystatechange = function () {
+                    if (xmlHttp.readyState == 4) {
+                        if (xmlHttp.status == 200) {
+                            document.getElementById("result").innerText = xmlHttp.responseText;
+                            document.getElementById("progress").style.display = "none";
+                        }
+                    }
+                };
+                xmlHttp.setRequestHeader("content-type", "application/x-www-form-urlencoded");
+                document.getElementById("progress").style.display = "inline";
+                xmlHttp.send("Name=郭小明");
+            }
+            else {
+                alert("瀏覽不支援XMLHttpRequest")
+            }
+        }
+    </script>
+}
