@@ -43,6 +43,11 @@ namespace AJAX.Controllers
 			return View();
 		}
 
+		public IActionResult VueEmployeeService()
+		{
+			return View();
+		}
+
 		public IActionResult PM25()
 		{
 			return View();

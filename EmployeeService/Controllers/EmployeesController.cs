@@ -130,5 +130,20 @@ namespace EmployeeService.Controllers
         {
             return _context.Employees.Any(e => e.EmployeeId == id);
         }
+
+        [HttpPost("Filter")] //Uri=>api/Employees/Filter
+        public async Task<IEnumerable<EmployeeDTO>>FilterEmployee([FromBody]EmployeeDTO employee)
+        {
+
+            return _context.Employees
+                .Where(emp=>emp.FirstName.Contains(employee.FirstName) || emp.LastName.Contains(employee.FirstName) || emp.Title.Contains(employee.FirstName))
+                .Select(emp=>new EmployeeDTO
+            {
+                EmployeeId = emp.EmployeeId,
+                FirstName = emp.FirstName,
+                LastName = emp.LastName,
+                Title = emp.Title
+            });
+        }
     }
 }
