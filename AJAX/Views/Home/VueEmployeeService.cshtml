@@ -63,70 +63,129 @@
 		<script>
 			var webApiBaseAddr = "https://localhost:7175";
 			var vueApp={
-				data(){
-					return{
-						Filter:"",
-						EmployeeDTOes:[],
+						data(){
+							return{
+								Filter:"",
+								EmployeeDTOes:[],
+							firstNameOld:"",
+							lastNameOld:"",
+							titleOld:""
+							};
+						},
+						//mounted 初始化
+						mounted:function(event){
+							let _this=this;
+							_this.getEmployeeDTOes();
+						},
+						methods:{
+							getEmployeeDTOes:function(){
+								//alert("getEmployeeDTOes");
+								let _this=this;
+								axios.get(`${webApiBaseAddr}/api/Employees`).then(response=>{
+									_this.EmployeeDTOes=response.data;
+									var employeeList=[];
+									for (var i = 0; i < _this.EmployeeDTOes.length; i++) {
+										var item={};
+										item = _this.EmployeeDTOes[i];
+										item.Edit=false;
+										employeeList.push(item);
+									}
+									_this.EmployeeDTOes = employeeList;
+								});
+							},
+							showModel:function(){
+								alert("showModel");
+							},
+							update:function(item){
+								//alert("update");
+								let _this=this;
+								var request={};
+								request.EmployeeId=item.employeeId;
+								request.FirstName = item.firstName;
+								request.LastName = item.lastName;
+								request.Title = item.title;
+								axios.put(`${webApiBaseAddr}/api/Employees/${item.employeeId}`,request).then(response=>{
+									alert(response.data);
+									_this.filterEmployeeDTO();
+									_this.cancel();
+								});
+							},
+							cancel:function(){
+								//alert("cancel");
+									let _this = this;
+									var employeeList = [];
+									for (var i = 0; i < _this.EmployeeDTOes.length; i++) {
+										var item = {};
+										item = _this.EmployeeDTOes[i];
+										if (item.Edit == true) {
+											item.Edit = false;
+											item.firstName=_this.firstNameOld;
+											item.lastName=_this.lastNameOld;
+											item.title=_this.titleOld;
+										} 
 
-					};
-				},
-				//mounted 初始化
-				mounted:function(event){
-					let _this=this;
-					_this.getEmployeeDTOes();
-				},
-				methods:{
-					getEmployeeDTOes:function(){
-						//alert("getEmployeeDTOes");
-						let _this=this;
-						axios.get(`${webApiBaseAddr}/api/Employees`).then(response=>{
-							_this.EmployeeDTOes=response.data;
-							var employeeList=[];
-							for (var i = 0; i < _this.EmployeeDTOes.length; i++) {
-								var item={};
-								item = _this.EmployeeDTOes[i];
-								item.Edit=false;
-								employeeList.push(item);
-							}
-							_this.EmployeeDTOes = employeeList;
-						});
-					},
-					showModel:function(){
-						alert("showModel");
-					},
-					update:function(item){
-						alert("update");
-					},
-					cancel:function(){
-						alert("cancel");
-					},
-					edit:function(employeeId){
-						alert("edit");
-					},
-					deleteEmployee:function(employeeId){
-						alert("delete");
+										employeeList.push(item);
+									}
+									_this.EmployeeDTOes = employeeList;
+						
+							},
+							edit:function(employeeId){
+								//alert("edit");
+								let _this=this;
+								var employeeList=[];
+								for (var i = 0; i < _this.EmployeeDTOes.length; i++) {
+										var item={};
+										item = _this.EmployeeDTOes[i];
+										if(employeeId==item.employeeId){
+											item.Edit = true;
+											_this.firstNameOld = item.firstName;
+											_this.lastNameOld = item.lastName;
+											_this.titleOld = item.title;
+										}else{
+											item.Edit=false;
+										}
+								
+										employeeList.push(item);
+									}
+									_this.EmployeeDTOes = employeeList;
+						
+							},
+							deleteEmployee:function(employeeId){
+								//alert("delete");
+								let _this=this;
+								var ret=confirm("確定要刪除嗎?");
+								if (ret==true){
+									axios.delete(`${webApiBaseAddr}/api/Employees/${employeeId}`)
+									.then(response=>{
+											alert(response.data);
+											_this.filterEmployeeDTO();
+										}
+									);
+								}
+							},
+							filterEmployeeDTO:function(){
+								//let _this=this;
+								//alert(_this.Filter);
+								let _this=this;
+								var request={};
+								request.FirstName=_this.Filter;
+								axios.post(`${webApiBaseAddr}/api/Employees/Filter`,request).then(response=>{
+									_this.EmployeeDTOes=response.data;
+									var employeeList=[];
+									for (var i = 0; i < _this.EmployeeDTOes.length; i++) {
+										var item={};
+										item = _this.EmployeeDTOes[i];
+										item.Edit=false;
+										employeeList.push(item);
+									}
+									_this.EmployeeDTOes = employeeList;
+								}
+								);
+							},
 
-					},
-					filterEmployeeDTO:function(){
-						//let _this=this;
-						//alert(_this.Filter);
-						let _this=this;
-						var request={};
-						request.FirstName=_this.Filter;
-						axios.post(`${webApiBaseAddr}/api/Employees/Filter`,request).then(response=>{
-							_this.EmployeeDTOes=response.data;
-							var employeeList=[];
-							for (var i = 0; i < _this.EmployeeDTOes.length; i++) {
-								var item={};
-								item = _this.EmployeeDTOes[i];
-								item.Edit=false;
-								employeeList.push(item);
-							}
-							_this.EmployeeDTOes = employeeList;
-						});
-					}	
-				}
-			};
+						}
+			
+			};											
 			var app=Vue.createApp(vueApp).mount("#app");
 		</script>
 }
